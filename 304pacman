@@ -1,0 +1,55 @@
+#!/usr/bin/python
+
+from __future__ import print_function
+import sys
+import file_parsing as FileParsing, data_process as DataProcess, tk_draw as TkDraw
+
+"""
+dump a map in prompt
+"""
+
+def     dump_map(Map):
+    for line in Map:
+        for item in line:
+            print(item, end='')
+        print()
+
+"""
+resolve mandatory part
+"""
+
+def     do_it(fileName):
+    fileMap = FileParsing.get_map(fileName)
+    if fileMap == None:
+        return -1
+    instance = TkDraw.get_instance()
+    window = TkDraw.get_window(instance)
+    dump_map(fileMap)
+    dist_map = DataProcess.get_dist_map(fileMap)
+    ymax = len(fileMap)
+    xmax = len(fileMap[0])
+    ghost_pos = DataProcess.get_ghost(fileMap)
+    print("ghost y = {}, x = {}".format(ghost_pos[0], ghost_pos[1]))
+    pacman_pos = DataProcess.get_pacman(fileMap)
+    print("pacman y = {}, x = {}".format(pacman_pos[0], pacman_pos[1]))
+    path = []
+    distances = {}
+    DataProcess.dijkstra_alg(dist_map, str(xmax * ghost_pos[0] + ghost_pos[1]), str(xmax * pacman_pos[0] + pacman_pos[1]), path, distances)
+    print("path len : ")
+    print(len(path))
+    print("all distances : ")
+    print(distances)
+    TkDraw.draw_map(window, fileMap, path, distances)
+    TkDraw.do_mainloop()
+    return 0
+
+"""
+entry point
+"""
+
+if __name__ == '__main__':
+    if len(sys.argv) == 2:
+        if do_it(sys.argv[1]) == -1:
+            print("something wrong happend")
+    else:
+        print("USAGE:\t./304pacman map_file")
